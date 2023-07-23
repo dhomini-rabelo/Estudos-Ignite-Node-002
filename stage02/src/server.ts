@@ -1,7 +1,6 @@
-import fastify from "fastify";
+import fastify from 'fastify'
 
 const app = fastify()
-
 
 app.get('/', async () => {
   return 'Hello World'
@@ -10,4 +9,3 @@ app.get('/', async () => {
 app.listen({ port: 3333 }).then(() => {
   console.log('server running')
 })
-
