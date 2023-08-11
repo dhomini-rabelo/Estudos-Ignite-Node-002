@@ -1,8 +1,11 @@
 import fastify from 'fastify'
+import { database } from './database'
 
 const app = fastify()
 
 app.get('/', async () => {
+  const db = await database('sqlite_schema').select('*')
+  console.log({ db })
   return 'Hello World'
 })
 
