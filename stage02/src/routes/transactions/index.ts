@@ -1,11 +1,20 @@
 import { FastifyInstance } from 'fastify'
 import { database } from '../../project/database'
-import { createTransactionSchema } from './schemas'
+import { createTransactionSchema, uuidParamSchema } from './schemas'
 import { randomUUID } from 'node:crypto'
 
 export async function transactionsRoutes(app: FastifyInstance) {
   app.get('', async () => {
     return await database('transactions').select('*')
+  })
+
+  app.get('/:id', async (req, res) => {
+    const schema = uuidParamSchema.safeParse(req.params)
+    if (schema.success) {
+      return await database('transactions').where('id', schema.data.id).first()
+    } else {
+      return res.status(400).send(schema.error.format())
+    }
   })
 
   app.post('', async (req, res) => {
