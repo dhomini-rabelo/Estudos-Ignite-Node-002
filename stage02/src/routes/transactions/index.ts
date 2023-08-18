@@ -20,8 +20,17 @@ export async function transactionsRoutes(app: FastifyInstance) {
   app.post('', async (req, res) => {
     const schema = createTransactionSchema.safeParse(req.body)
     if (schema.success) {
+      let sessionId = req.cookies.sessionId
+      if (!sessionId) {
+        sessionId = randomUUID()
+        res.cookie('sessionId', sessionId, {
+          path: '/',
+          maxAge: 1000 * 60 * 60 * 24 * 7,
+        })
+      }
       await database('transactions').insert({
         id: randomUUID(),
+        session_id: sessionId,
         title: schema.data.title,
         amount:
           schema.data.type === 'credit'
