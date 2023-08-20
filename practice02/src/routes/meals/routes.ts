@@ -33,7 +33,9 @@ export async function mealsRoutes(app: FastifyInstance) {
   app.get('/:id', async (req, res) => {
     const schema = uuidParamSchema.safeParse(req.params)
     if (schema.success) {
-      const meal = await database('meals').where({ id: schema.data.id }).first()
+      const meal = await database('meals')
+        .where({ id: schema.data.id, user_id: req.user?.id })
+        .first()
       return meal
         ? res.status(200).send(meal)
         : res.status(404).send({ error: 'Not Found' })
