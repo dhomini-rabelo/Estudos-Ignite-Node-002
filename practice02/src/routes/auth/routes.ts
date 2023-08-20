@@ -2,12 +2,9 @@ import { FastifyInstance } from 'fastify'
 import { database } from '../../project/database'
 import { randomUUID } from 'node:crypto'
 import { createUserSchema, loginSchema } from './schemas'
-import { BCryptHashModule } from '../../modules/hash/modules/bcryptHash'
-import { IHashModule } from '../../modules/hash/contract'
+import { hashModule } from '../../project/modules'
 
 export async function authRoutes(app: FastifyInstance) {
-  const hashModule: IHashModule = new BCryptHashModule()
-
   app.post('/create-user', async (req, res) => {
     const schema = createUserSchema.safeParse(req.body)
     if (schema.success) {
