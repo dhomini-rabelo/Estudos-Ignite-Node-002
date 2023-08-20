@@ -15,10 +15,17 @@ export async function mealsRoutes(app: FastifyInstance) {
         name: schema.data.name,
         description: schema.data.description,
         is_in_the_diet: schema.data.is_in_the_diet,
+        user_id: req.user?.id,
       })
       return res.status(204).send()
     } else {
       return res.status(400).send(schema.error.format())
     }
+  })
+
+  app.get('', async (req) => {
+    return await database('meals').where({
+      user_id: req.user?.id,
+    })
   })
 }
