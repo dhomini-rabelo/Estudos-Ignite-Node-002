@@ -23,6 +23,8 @@ export async function IsAuthenticatedMiddleware(
         error: 'Unauthorized',
         statusCode: 401,
       })
+    } else {
+      req.user = user
     }
   }
 }
