@@ -2,7 +2,7 @@ import fastify from 'fastify'
 import { transactionsRoutes } from '../routes/transactions'
 import cookie from '@fastify/cookie'
 
-const app = fastify()
+export const app = fastify()
 
 app.addHook('preHandler', async (req, res) => {
   console.log(`[${req.method}] ${req.url}`)
