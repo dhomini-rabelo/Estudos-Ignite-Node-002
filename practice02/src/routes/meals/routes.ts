@@ -70,4 +70,39 @@ export async function mealsRoutes(app: FastifyInstance) {
       return res.status(400).send(paramsSchema.error.format())
     }
   })
+
+  app.get('/summary', async (req, res) => {
+    const meals = await database('meals').where({
+      user_id: req.user?.id,
+    })
+
+    let bestSequence = 0
+
+    const summary = meals.reduce(
+      (acc, meal) => {
+        if (meal.is_in_the_diet) {
+          return {
+            total: acc.total + 1,
+            totalInDiet: acc.totalInDiet + 1,
+            totalOutDiet: acc.totalOutDiet,
+            bestSequence: acc.bestSequence + 1,
+          }
+        } else {
+          if (acc.bestSequence > bestSequence) {
+            bestSequence = acc.bestSequence
+          }
+
+          return {
+            total: acc.total + 1,
+            totalInDiet: acc.totalInDiet,
+            totalOutDiet: acc.totalOutDiet + 1,
+            bestSequence: 0,
+          }
+        }
+      },
+      { total: 0, totalInDiet: 0, totalOutDiet: 0, bestSequence: 0 },
+    )
+
+    return res.status(200).send({ ...summary, bestSequence })
+  })
 }
