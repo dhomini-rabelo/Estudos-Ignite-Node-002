@@ -1,4 +1,4 @@
-import { expect, test, beforeAll, afterAll, describe } from 'vitest'
+import { expect, beforeAll, afterAll, describe, it } from 'vitest'
 import request from 'supertest'
 import { app } from '../src/project/server'
 import { execSync } from 'node:child_process'
@@ -18,7 +18,7 @@ afterAll(async () => {
 // })
 
 describe('creation route', () => {
-  test('create credit transaction', async () => {
+  it('must create a credit transaction', async () => {
     const response = await request(app.server).post('/transactions').send({
       title: 'Credit transaction',
       type: 'credit',
@@ -27,7 +27,7 @@ describe('creation route', () => {
     expect(response.statusCode).toBe(204)
   })
 
-  test('create debit transaction', async () => {
+  it('must create a debit transaction', async () => {
     await request(app.server)
       .post('/transactions')
       .send({
@@ -40,7 +40,7 @@ describe('creation route', () => {
 })
 
 describe('listing route', () => {
-  test('listing transactions', async () => {
+  it('must list transactions', async () => {
     const createTransactionResponse = await request(app.server)
       .post('/transactions')
       .send({
@@ -76,7 +76,7 @@ describe('listing route', () => {
 })
 
 describe('detail route', () => {
-  test('transaction data', async () => {
+  it('must get transaction data', async () => {
     const createTransactionResponse = await request(app.server)
       .post('/transactions')
       .set('Cookie', [])
@@ -110,7 +110,7 @@ describe('detail route', () => {
 })
 
 describe('summary route', () => {
-  test('summary data', async () => {
+  it('must get summary data', async () => {
     const createTransactionResponse = await request(app.server)
       .post('/transactions')
       .set('Cookie', [])
