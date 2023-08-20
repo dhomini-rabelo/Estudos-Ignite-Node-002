@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { IsAuthenticatedMiddleware } from '../../middlewares/auth'
-import { createMealSchema } from './schemas'
+import { mealSchema } from './schemas'
 import { database } from '../../project/database'
 import { randomUUID } from 'node:crypto'
 import { uuidParamSchema } from '../../utils/schemas'
@@ -9,7 +9,7 @@ export async function mealsRoutes(app: FastifyInstance) {
   app.addHook('preHandler', IsAuthenticatedMiddleware)
 
   app.post('', async (req, res) => {
-    const schema = createMealSchema.safeParse(req.body)
+    const schema = mealSchema.safeParse(req.body)
     if (schema.success) {
       await database('meals').insert({
         id: randomUUID(),
@@ -41,6 +41,33 @@ export async function mealsRoutes(app: FastifyInstance) {
         : res.status(404).send({ error: 'Not Found' })
     } else {
       return res.status(400).send(schema.error.format())
+    }
+  })
+
+  app.put('/:id', async (req, res) => {
+    const paramsSchema = uuidParamSchema.safeParse(req.params)
+    if (paramsSchema.success) {
+      const meal = await database('meals')
+        .where({ id: paramsSchema.data.id, user_id: req.user?.id })
+        .first()
+      if (meal) {
+        const schema = mealSchema.safeParse(req.body)
+        if (schema.success) {
+          await database('meals')
+            .where({ id: paramsSchema.data.id, user_id: req.user?.id })
+            .update({
+              name: schema.data.name,
+              description: schema.data.description,
+              is_in_the_diet: schema.data.is_in_the_diet,
+            })
+          return res.status(204).send()
+        } else {
+          return res.status(400).send(schema.error.format())
+        }
+      }
+      return res.status(404).send({ error: 'Not Found' })
+    } else {
+      return res.status(400).send(paramsSchema.error.format())
     }
   })
 }
