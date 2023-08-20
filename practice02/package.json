@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/project/server.ts"
+    "dev": "tsx watch src/project/server.ts",
+    "knex": "node --loader tsx ./node_modules/.bin/knex"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "fastify": "^4.21.0",
     "knex": "^2.5.1",
     "sqlite3": "^5.1.6",
+    "tsx": "^3.12.7",
     "zod": "^3.22.2"
   }
 }

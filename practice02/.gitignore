@@ -1,2 +1,4 @@
 .env
 .test.env
+src/project/database/database.db
+src/project/database/test.db
