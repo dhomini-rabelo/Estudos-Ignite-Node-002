@@ -7,6 +7,7 @@ export async function IsAuthenticatedMiddleware(
 ) {
   if (!req.headers.authorization) {
     return res.status(401).send({
+      message: 'Token not received',
       error: 'Unauthorized',
       statusCode: 401,
     })
@@ -18,6 +19,7 @@ export async function IsAuthenticatedMiddleware(
       .first()
     if (!user) {
       return res.status(401).send({
+        message: 'Invalid token',
         error: 'Unauthorized',
         statusCode: 401,
       })
