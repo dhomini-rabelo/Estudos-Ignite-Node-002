@@ -8,7 +8,7 @@ app.addHook('preHandler', async (req) => {
 })
 
 app.register(authRoutes, {
-  prefix: 'auth',
+  prefix: 'api/auth',
 })
 
 app.listen({ port: 3333 }).then(() => {
