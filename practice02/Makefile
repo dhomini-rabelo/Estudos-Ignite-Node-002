@@ -4,3 +4,4 @@ init:
 	npx tsc --init
 	npm i -D eslint @rocketseat/eslint-config
 	npm i fastify
+	npm i dotenv knex sqlite3 zod
