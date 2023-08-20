@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
+import { database } from '../project/database'
 
 export async function IsAuthenticatedMiddleware(
   req: FastifyRequest,
@@ -9,5 +10,17 @@ export async function IsAuthenticatedMiddleware(
       error: 'Unauthorized',
       statusCode: 401,
     })
+  } else {
+    const user = await database('users')
+      .where({
+        token: req.headers.authorization.slice(6),
+      })
+      .first()
+    if (!user) {
+      return res.status(401).send({
+        error: 'Unauthorized',
+        statusCode: 401,
+      })
+    }
   }
 }
