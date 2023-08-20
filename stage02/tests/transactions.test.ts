@@ -74,3 +74,70 @@ describe('listing route', () => {
     ])
   })
 })
+
+describe('detail route', () => {
+  test('transaction data', async () => {
+    const createTransactionResponse = await request(app.server)
+      .post('/transactions')
+      .set('Cookie', [])
+      .send({
+        title: 'Credit transaction',
+        type: 'credit',
+        amount: 3000,
+      })
+
+    const cookies = createTransactionResponse.get('Set-Cookie')
+
+    const listingResponse = await request(app.server)
+      .get('/transactions')
+      .set('Cookie', cookies)
+
+    const transactionId = listingResponse.body[0].id
+
+    const response = await request(app.server)
+      .get(`/transactions/${transactionId}`)
+      .set('Cookie', cookies)
+      .expect(200)
+
+    expect(response.body).toEqual({
+      id: transactionId,
+      created_at: expect.any(String),
+      session_id: expect.any(String),
+      title: 'Credit transaction',
+      amount: 3000,
+    })
+  })
+})
+
+describe('summary route', () => {
+  test('summary data', async () => {
+    const createTransactionResponse = await request(app.server)
+      .post('/transactions')
+      .set('Cookie', [])
+      .send({
+        title: 'Credit transaction',
+        type: 'credit',
+        amount: 3000,
+      })
+
+    const cookies = createTransactionResponse.get('Set-Cookie')
+
+    await request(app.server)
+      .post('/transactions')
+      .set('Cookie', cookies)
+      .send({
+        title: 'Debit transaction',
+        type: 'debit',
+        amount: 2000,
+      })
+
+    const response = await request(app.server)
+      .get('/transactions/summary')
+      .set('Cookie', cookies)
+      .expect(200)
+
+    expect(response.body).toEqual({
+      amount: 1000,
+    })
+  })
+})
