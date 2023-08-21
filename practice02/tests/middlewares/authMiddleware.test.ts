@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { app } from '../../src/project/server'
+
 import { randomUUID } from 'node:crypto'
 import request from 'supertest'
 
@@ -60,3 +61,5 @@ describe('Test auth middleware', () => {
     expect(response.body).toEqual([])
   })
 })
+
+export { app }

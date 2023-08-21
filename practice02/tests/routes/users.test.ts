@@ -1,17 +1,17 @@
 import { execSync } from 'node:child_process'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { app } from '../../src/project/server'
 import { randomUUID } from 'node:crypto'
 import request from 'supertest'
+import { app } from '../middlewares/authMiddleware.test'
 
-beforeAll(async () => {
-  execSync('npm run knex migrate:latest')
-  await app.ready()
-})
+// beforeAll(async () => {
+//   execSync('npm run knex migrate:latest')
+//   await app.ready()
+// })
 
-afterAll(async () => {
-  await app.close()
-})
+// afterAll(async () => {
+//   await app.close()
+// })
 
 describe('Test create-user route', async () => {
   it('must create a user', async () => {
