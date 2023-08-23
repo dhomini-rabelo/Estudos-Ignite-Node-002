@@ -152,3 +152,5 @@ describe('Test login route', async () => {
     )
   })
 })
+
+export { app }
