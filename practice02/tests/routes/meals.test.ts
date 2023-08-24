@@ -245,4 +245,88 @@ describe('Test meal routes', async () => {
       expect(response.body).toEqual(mealAPIData)
     })
   })
+
+  describe('Test update meal route', () => {
+    test('request without token', async () => {
+      await request(app.server)
+        .put(`/api/meals/${randomUUID()}`)
+        .send()
+        .expect(401)
+    })
+
+    it('request return Not found', async () => {
+      await request(app.server)
+        .put(`/api/meals/${randomUUID()}`)
+        .set('Authorization', `Token ${token}`)
+        .send()
+        .expect(404)
+    })
+
+    test('success case', async () => {
+      const mealData = {
+        name: 'test-99',
+        description: 'test-99',
+        is_in_the_diet: true,
+      }
+
+      const otherUserData = {
+        username: `test-${randomUUID()}`,
+        password: 'test12345678',
+      }
+
+      await request(app.server)
+        .post('/api/auth/create-user')
+        .send(otherUserData)
+
+      const otherUserResponse = await request(app.server)
+        .post('/api/auth/login')
+        .set('Content-Type', 'application/json')
+        .send(otherUserData)
+
+      const otherUserToken = otherUserResponse.body.token
+
+      await request(app.server)
+        .post('/api/meals')
+        .set('Authorization', `Token ${otherUserToken}`)
+        .set('Content-Type', 'application/json')
+        .send(mealData)
+
+      const mealsListResponse = await request(app.server)
+        .get('/api/meals')
+        .set('Authorization', `Token ${otherUserToken}`)
+        .send()
+
+      const mealAPIData: { id: string } = mealsListResponse.body[0]
+
+      const newMealData = {
+        ...mealData,
+        name: 'new test',
+        description: 'new-description',
+      }
+
+      await request(app.server)
+        .put(`/api/meals/${mealAPIData.id}`)
+        .set('Authorization', `Token ${otherUserToken}`)
+        .send(newMealData)
+        .expect(204)
+
+      const mealsListResponseAfterUpdate = await request(app.server)
+        .get('/api/meals')
+        .set('Authorization', `Token ${otherUserToken}`)
+        .send()
+
+      const user = await database('users')
+        .where({ token: otherUserToken })
+        .first()
+
+      expect(mealsListResponseAfterUpdate.body[0]).toEqual(
+        expect.objectContaining({
+          ...newMealData,
+          is_in_the_diet: 1,
+          user_id: user?.id,
+          id: expect.any(String),
+        }),
+      )
+    })
+  })
 })
