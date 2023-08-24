@@ -117,7 +117,7 @@ describe('Test meal routes', async () => {
         {
           name: 'test',
           description: 'test',
-          is_in_the_diet: 2,
+          is_in_the_diet: true,
         },
       ]
 
@@ -327,6 +327,176 @@ describe('Test meal routes', async () => {
           id: expect.any(String),
         }),
       )
+    })
+  })
+
+  describe('Test meals summary route', () => {
+    test('request without token', async () => {
+      await request(app.server).get('/api/meals/summary').send().expect(401)
+    })
+
+    test('success case', async () => {
+      const mealsData = [
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: false,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: false,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: false,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: false,
+        },
+      ]
+
+      const otherUserData = {
+        username: `test-${randomUUID()}`,
+        password: 'test12345678',
+      }
+
+      await request(app.server)
+        .post('/api/auth/create-user')
+        .send(otherUserData)
+
+      const otherUserResponse = await request(app.server)
+        .post('/api/auth/login')
+        .set('Content-Type', 'application/json')
+        .send(otherUserData)
+
+      const otherUserToken = otherUserResponse.body.token
+
+      for (const mealData of mealsData) {
+        await request(app.server)
+          .post('/api/meals')
+          .set('Authorization', `Token ${otherUserToken}`)
+          .set('Content-Type', 'application/json')
+          .send(mealData)
+      }
+
+      const response = await request(app.server)
+        .get('/api/meals/summary')
+        .set('Authorization', `Token ${otherUserToken}`)
+        .send()
+        .expect(200)
+
+      expect(response.body).toEqual({
+        total: mealsData.length,
+        totalInDiet: mealsData.filter((meal) => meal.is_in_the_diet).length,
+        totalOutDiet: mealsData.filter((meal) => !meal.is_in_the_diet).length,
+        bestSequence: 3,
+      })
+    })
+
+    test('success case with different data', async () => {
+      const mealsData = [
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: false,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: false,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+        {
+          name: 'test',
+          description: 'test',
+          is_in_the_diet: true,
+        },
+      ]
+
+      const otherUserData = {
+        username: `test-${randomUUID()}`,
+        password: 'test12345678',
+      }
+
+      await request(app.server)
+        .post('/api/auth/create-user')
+        .send(otherUserData)
+
+      const otherUserResponse = await request(app.server)
+        .post('/api/auth/login')
+        .set('Content-Type', 'application/json')
+        .send(otherUserData)
+
+      const otherUserToken = otherUserResponse.body.token
+
+      for (const mealData of mealsData) {
+        await request(app.server)
+          .post('/api/meals')
+          .set('Authorization', `Token ${otherUserToken}`)
+          .set('Content-Type', 'application/json')
+          .send(mealData)
+      }
+
+      const response = await request(app.server)
+        .get('/api/meals/summary')
+        .set('Authorization', `Token ${otherUserToken}`)
+        .send()
+        .expect(200)
+
+      expect(response.body).toEqual({
+        total: mealsData.length,
+        totalInDiet: mealsData.filter((meal) => meal.is_in_the_diet).length,
+        totalOutDiet: mealsData.filter((meal) => !meal.is_in_the_diet).length,
+        bestSequence: 3,
+      })
     })
   })
 })
