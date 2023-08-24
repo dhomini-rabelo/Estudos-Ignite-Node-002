@@ -81,6 +81,9 @@ export async function mealsRoutes(app: FastifyInstance) {
     const summary = meals.reduce(
       (acc, meal) => {
         if (meal.is_in_the_diet) {
+          if (acc.bestSequence + 1 > bestSequence) {
+            bestSequence = acc.bestSequence + 1
+          }
           return {
             total: acc.total + 1,
             totalInDiet: acc.totalInDiet + 1,
@@ -91,7 +94,6 @@ export async function mealsRoutes(app: FastifyInstance) {
           if (acc.bestSequence > bestSequence) {
             bestSequence = acc.bestSequence
           }
-
           return {
             total: acc.total + 1,
             totalInDiet: acc.totalInDiet,
